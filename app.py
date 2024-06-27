@@ -7,33 +7,30 @@ from transformers import AutoTokenizer, TextStreamer, pipeline, AutoModelForQues
 from auto_gptq import AutoGPTQForCausalLM
 import torch
 from flask import Flask, jsonify,request
+import pinecone
 app = Flask(__name__)
 
-print("hi")
-print("hi")
-print("hi")
-print("hi")
 embedding_model = SentenceTransformerEmbeddings(model_name='all-mpnet-base-v2')
-def load_text_files(directory):
-  loader = PyPDFDirectoryLoader(directory)
-  docs_before_split= loader.load()
-  text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=100)
-  docs = text_splitter.split_documents(docs_before_split)
+# def load_text_files(directory):
+#   loader = PyPDFDirectoryLoader(directory)
+#   docs_before_split= loader.load()
+#   text_splitter = RecursiveCharacterTextSplitter(chunk_size=1024, chunk_overlap=100)
+#   docs = text_splitter.split_documents(docs_before_split)
 
-  sub_chunk_sizes = [128, 256, 512]
-  sub_chunk_splitter = [
-    RecursiveCharacterTextSplitter(chunk_size=c, chunk_overlap=0) for c in sub_chunk_sizes
-  ]
-  all_chunks = []
+#   sub_chunk_sizes = [128, 256, 512]
+#   sub_chunk_splitter = [
+#     RecursiveCharacterTextSplitter(chunk_size=c, chunk_overlap=0) for c in sub_chunk_sizes
+#   ]
+#   all_chunks = []
 
-  for doc in docs:
-    for splitter in sub_chunk_splitter:
-          sub_chunks = splitter.split_documents([doc])
-          for chunk in sub_chunks:
-                all_chunks.append(chunk.page_content)
+#   for doc in docs:
+#     for splitter in sub_chunk_splitter:
+#           sub_chunks = splitter.split_documents([doc])
+#           for chunk in sub_chunks:
+#                 all_chunks.append(chunk.page_content)
 
-  db = FAISS.from_texts(all_chunks, embedding_model)
-  db.save_local("faiss")
+#   db = FAISS.from_texts(all_chunks, embedding_model)
+#   db.save_local("./faiss")
 
 db = FAISS.load_local('faiss', embedding_model,allow_dangerous_deserialization=True)
 
